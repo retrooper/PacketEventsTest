@@ -162,7 +162,6 @@ public class PacketListener extends PacketListenerAbstract {
     public void onPacketSend(PacketSendEvent event) {
         if (event.getConnectionState() != ConnectionState.PLAY) return;
         if (event.getPacketType() == null) return;
-        System.out.println("Sending " + event.getPacketType().getName());
         if (event.getPacketType() == PacketType.Login.Server.DISCONNECT) {
             WrapperLoginServerDisconnect wrapper = new WrapperLoginServerDisconnect(event);
         }
@@ -241,8 +240,8 @@ public class PacketListener extends PacketListenerAbstract {
         if (event.getPacketType() == PacketType.Play.Server.ENTITY_METADATA) {
             WrapperPlayServerEntityMetadata packet = new WrapperPlayServerEntityMetadata(event);
         }
-        if (event.getPacketType() == PacketType.Play.Server.ENTITY_PROPERTIES) {
-            WrapperPlayServerEntityProperties packet = new WrapperPlayServerEntityProperties(event);
+        if (event.getPacketType() == PacketType.Play.Server.UPDATE_ATTRIBUTES) {
+            WrapperPlayServerUpdateAttributes packet = new WrapperPlayServerUpdateAttributes(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.ENTITY_RELATIVE_MOVE) {
             WrapperPlayServerEntityRelativeMove packet = new WrapperPlayServerEntityRelativeMove(event);
@@ -340,9 +339,9 @@ public class PacketListener extends PacketListenerAbstract {
         if (event.getPacketType() == PacketType.Play.Server.TAGS) {
             WrapperPlayServerTags packet = new WrapperPlayServerTags(event);
         }
-        /*if (event.getPacketType() == PacketType.Play.Server.TEAMS) {
+        if (event.getPacketType() == PacketType.Play.Server.TEAMS) {
             WrapperPlayServerTeams packet = new WrapperPlayServerTeams(event);
-        }*/
+        }
         if (event.getPacketType() == PacketType.Play.Server.UNLOAD_CHUNK) {
             WrapperPlayServerUnloadChunk packet = new WrapperPlayServerUnloadChunk(event);
         }
