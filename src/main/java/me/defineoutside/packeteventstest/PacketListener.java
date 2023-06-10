@@ -3,17 +3,15 @@ package me.defineoutside.packeteventstest;
 import com.github.retrooper.packetevents.event.PacketListenerAbstract;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
-import com.github.retrooper.packetevents.protocol.ConnectionState;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.handshaking.client.WrapperHandshakingClientHandshake;
-import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientEncryptionResponse;
-import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientLoginStart;
 import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientPluginResponse;
 import com.github.retrooper.packetevents.wrapper.login.server.*;
 import com.github.retrooper.packetevents.wrapper.play.client.*;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import com.github.retrooper.packetevents.wrapper.status.client.WrapperStatusClientPing;
 import com.github.retrooper.packetevents.wrapper.status.server.WrapperStatusServerPong;
+import me.defineoutside.packeteventstest.update.*;
 
 public class PacketListener extends PacketListenerAbstract {
     @Override
@@ -22,10 +20,10 @@ public class PacketListener extends PacketListenerAbstract {
             WrapperHandshakingClientHandshake packet = new WrapperHandshakingClientHandshake(event);
         }
         if (event.getPacketType() == PacketType.Login.Client.ENCRYPTION_RESPONSE) {
-            WrapperLoginClientEncryptionResponse packet = new WrapperLoginClientEncryptionResponse(event);
+            NEW_WrapperLoginClientEncryptionResponse packet = new NEW_WrapperLoginClientEncryptionResponse(event);
         }
         if (event.getPacketType() == PacketType.Login.Client.LOGIN_START) {
-            WrapperLoginClientLoginStart packet = new WrapperLoginClientLoginStart(event);
+            //WrapperLoginClientLoginStart packet = new WrapperLoginClientLoginStart(event);
         }
         if (event.getPacketType() == PacketType.Login.Client.LOGIN_PLUGIN_RESPONSE) {
             WrapperLoginClientPluginResponse packet = new WrapperLoginClientPluginResponse(event);
@@ -160,7 +158,7 @@ public class PacketListener extends PacketListenerAbstract {
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
-        if (event.getConnectionState() != ConnectionState.PLAY) return;
+        //if (event.getConnectionState() != ConnectionState.PLAY) return;
         if (event.getPacketType() == null) return;
         if (event.getPacketType() == PacketType.Login.Server.DISCONNECT) {
             WrapperLoginServerDisconnect wrapper = new WrapperLoginServerDisconnect(event);
@@ -211,7 +209,8 @@ public class PacketListener extends PacketListenerAbstract {
             WrapperPlayServerCollectItem packet = new WrapperPlayServerCollectItem(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.DECLARE_RECIPES) {
-            WrapperPlayServerDeclareRecipes packet = new WrapperPlayServerDeclareRecipes(event);
+            //TODO Rewrite Recipes? How outdated is it? Doesn't even work on 1.18.
+            //WrapperPlayServerDeclareRecipes packet = new WrapperPlayServerDeclareRecipes(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.DESTROY_ENTITIES) {
             WrapperPlayServerDestroyEntities packet = new WrapperPlayServerDestroyEntities(event);
@@ -274,10 +273,13 @@ public class PacketListener extends PacketListenerAbstract {
             WrapperPlayServerKeepAlive packet = new WrapperPlayServerKeepAlive(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
-            WrapperPlayServerMultiBlockChange packet = new WrapperPlayServerMultiBlockChange(event);
+            NEW_WrapperPlayServerMultiBlockChange packet = new NEW_WrapperPlayServerMultiBlockChange(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.OPEN_HORSE_WINDOW) {
             WrapperPlayServerOpenHorseWindow packet = new WrapperPlayServerOpenHorseWindow(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.OPEN_SIGN_EDITOR) {
+            WrapperPlayServerOpenSignEditor packet = new WrapperPlayServerOpenSignEditor(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.OPEN_WINDOW) {
             WrapperPlayServerOpenWindow packet = new WrapperPlayServerOpenWindow(event);
@@ -290,6 +292,12 @@ public class PacketListener extends PacketListenerAbstract {
         }
         if (event.getPacketType() == PacketType.Play.Server.PLAYER_ABILITIES) {
             WrapperPlayServerPlayerAbilities packet = new WrapperPlayServerPlayerAbilities(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.END_COMBAT_EVENT) {
+            NEW_WrapperPlayServerEndCombatEvent packet = new NEW_WrapperPlayServerEndCombatEvent(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.DEATH_COMBAT_EVENT) {
+            NEW_WrapperPlayServerDeathCombatEvent packet = new NEW_WrapperPlayServerDeathCombatEvent(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.PLAYER_INFO) {
             WrapperPlayServerPlayerInfo packet = new WrapperPlayServerPlayerInfo(event);
@@ -314,6 +322,9 @@ public class PacketListener extends PacketListenerAbstract {
         }*/
         if (event.getPacketType() == PacketType.Play.Server.SET_COOLDOWN) {
             WrapperPlayServerSetCooldown packet = new WrapperPlayServerSetCooldown(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.JOIN_GAME) {
+            NEW_WrapperPlayServerJoinGame packet = new NEW_WrapperPlayServerJoinGame(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.SET_EXPERIENCE) {
             WrapperPlayServerSetExperience packet = new WrapperPlayServerSetExperience(event);

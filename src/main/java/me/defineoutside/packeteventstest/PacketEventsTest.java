@@ -7,6 +7,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class PacketEventsTest extends JavaPlugin {
     @Override
     public void onLoad() {
+        //TODO Create UpdateAdvancements wrapper, update to 1.20, id = 105, writeBoolean was added in 1.20
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings().bStats(true).checkForUpdates(false).debug(true);
         PacketEvents.getAPI().load();
@@ -17,6 +18,8 @@ public final class PacketEventsTest extends JavaPlugin {
         // Plugin startup logic
         PacketEvents.getAPI().getEventManager().registerListener(new PacketListener());
         PacketEvents.getAPI().init();
+
+        System.out.println("Server version: " + PacketEvents.getAPI().getServerManager().getVersion());
     }
 
     @Override
