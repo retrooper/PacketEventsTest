@@ -17,7 +17,9 @@ repositories {
 
 dependencies {
     compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
-    implementation 'com.github.retrooper.packetevents:spigot:2.0.0-SNAPSHOT'
+    //Keeps PacketEvents constantly up to date (latest commit)
+    implementation group: "com.github.retrooper.packetevents", name: "spigot", version: "2.0.0-SNAPSHOT", changing: true
+    //implementation 'com.github.retrooper.packetevents:spigot:2.0.0-SNAPSHOT'
 }
 
 def targetJavaVersion = 8
@@ -43,6 +45,11 @@ processResources {
     filesMatching('plugin.yml') {
         expand props
     }
+}
+
+configurations.all {
+    // Check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 shadowJar {
