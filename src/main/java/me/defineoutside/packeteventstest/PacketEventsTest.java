@@ -10,7 +10,7 @@ public final class PacketEventsTest extends JavaPlugin {
         //TODO Create UpdateAdvancements wrapper, update to 1.20, id = 105, writeBoolean was added in 1.20
         //TODO Create UpdateLight wrapper, update to 1.20, id = 39, a boolean was removed, most likely trustEdges
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().getSettings().bStats(true).checkForUpdates(false).debug(true);
+        PacketEvents.getAPI().getSettings().checkForUpdates(false).debug(true);
         PacketEvents.getAPI().load();
     }
 

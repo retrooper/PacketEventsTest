@@ -18,7 +18,7 @@ repositories {
 dependencies {
     compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     //Keeps PacketEvents constantly up to date (latest commit)
-    implementation group: "com.github.retrooper.packetevents", name: "spigot", version: "2.0.0-SNAPSHOT", changing: true
+    implementation group: "com.github.retrooper", name: "packetevents-spigot", version: "2.3.1-SNAPSHOT"
     //implementation 'com.github.retrooper.packetevents:spigot:2.0.0-SNAPSHOT'
 }
 
@@ -54,4 +54,6 @@ configurations.all {
 
 shadowJar {
     minimize()
+    relocate('com.github.retrooper.packetevents', 'me.define.packeteventstest.packetevents.api')
+    relocate('io.github.retrooper.packetevents', 'me.define.packeteventstest.packetevents.impl')
 }
