@@ -1,9 +1,16 @@
 package me.defineoutside.packeteventstest;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListener;
 import com.github.retrooper.packetevents.event.PacketListenerAbstract;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
+import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.world.chunk.*;
+import com.github.retrooper.packetevents.protocol.world.chunk.impl.v_1_18.Chunk_v1_18;
+import com.github.retrooper.packetevents.protocol.world.chunk.palette.DataPalette;
 import com.github.retrooper.packetevents.wrapper.handshaking.client.WrapperHandshakingClientHandshake;
 import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientEncryptionResponse;
 import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientLoginStart;
@@ -13,8 +20,67 @@ import com.github.retrooper.packetevents.wrapper.play.client.*;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import com.github.retrooper.packetevents.wrapper.status.client.WrapperStatusClientPing;
 import com.github.retrooper.packetevents.wrapper.status.server.WrapperStatusServerPong;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
-public class PacketListener extends PacketListenerAbstract {
+import java.util.*;
+
+public class PEListener implements PacketListener {
+
+    public static void sendEmptyChunk(Player player, World world) {
+        try {
+            int chunkX = player.getLocation().getBlockX() >> 4;
+            int chunkZ = player.getLocation().getBlockZ() >> 4;
+            int minHeight = world.getMinHeight();
+            int maxHeight = world.getMaxHeight();
+            int chunkSections = (maxHeight - minHeight) >> 4;
+
+            BaseChunk[] chunks = new BaseChunk[chunkSections];
+            for (int i = 0; i < chunks.length; i++) {
+                DataPalette chunkPalette = DataPalette.createForChunk();
+
+                int airId = 0;
+                chunkPalette.set(0, 0, 0, airId);
+
+                DataPalette biomePalette = DataPalette.createForBiome();
+                int plainsBiomeId = 2;
+                biomePalette.set(0, 0, 0, plainsBiomeId);
+                chunks[i] = new Chunk_v1_18(0, chunkPalette, biomePalette);
+            }
+
+            Map<HeightmapType, long[]> heightmaps = new HashMap<>();
+            long[] emptyHeightmap = new long[37];
+            Arrays.fill(emptyHeightmap, minHeight);
+            heightmaps.put(HeightmapType.MOTION_BLOCKING, emptyHeightmap);
+            heightmaps.put(HeightmapType.WORLD_SURFACE, emptyHeightmap);
+
+            BitSet emptyBitSet = new BitSet();
+            byte[][] emptyLightArray = new byte[0][];
+            LightData lightData = new LightData(
+                    true,
+                    emptyBitSet,
+                    emptyBitSet,
+                    emptyBitSet,
+                    emptyBitSet,
+                    0,
+                    0,
+                    emptyLightArray,
+                    emptyLightArray
+            );
+
+            Column column = new Column(chunkX, chunkZ, true, chunks, new TileEntity[0], heightmaps);
+
+            WrapperPlayServerChunkData emptyChunkPacket = new WrapperPlayServerChunkData(column, lightData);
+            PacketEvents.getAPI().getPlayerManager().sendPacket(player, emptyChunkPacket);
+
+            Bukkit.getLogger().info("[Limbo] Sent empty chunk to " + player.getName() + " at " + chunkX + ", " + chunkZ);
+        } catch (Exception e) {
+            Bukkit.getLogger().severe("[Limbo] Failed to send empty chunk to " + player.getName() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() == PacketType.Handshaking.Client.HANDSHAKE) {
@@ -40,6 +106,30 @@ public class PacketListener extends PacketListenerAbstract {
         }
         if (event.getPacketType() == PacketType.Play.Client.CHAT_MESSAGE) {
             WrapperPlayClientChatMessage wrapper = new WrapperPlayClientChatMessage(event);
+/*
+
+            BaseChunk[] chunks = new BaseChunk[16];
+            for (int i = 0; i < chunks.length; i++) {
+                chunks[i] = BaseChunk.create();
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < 16; y++) {
+                        for (int z = 0; z < 16; z++) {
+                            chunks[i].set(x, y, z, 0);
+                            ((Chunk_v1_18) chunks[i]).getBiomeData().set(0, 0, 0, 0);
+                        }
+                    }
+                }
+            }
+
+            Player player = event.getPlayer();
+            LightData lightData = new LightData(true, new BitSet(), new BitSet(), new BitSet(), new BitSet(), 0, 0, new byte[0][0], new byte[0][0]);
+            Column column = new Column(player.getLocation().getBlockX() >> 4, player.getLocation().getBlockZ() >> 4, true, chunks, new TileEntity[0]);
+            WrapperPlayServerChunkData cd = new WrapperPlayServerChunkData(column, lightData);
+
+            event.getUser().sendPacket(cd);*/
+
+            Player player = event.getPlayer();
+
         }
         if (event.getPacketType() == PacketType.Play.Client.CLICK_WINDOW) {
             WrapperPlayClientClickWindow wrapper = new WrapperPlayClientClickWindow(event);
@@ -155,6 +245,12 @@ public class PacketListener extends PacketListenerAbstract {
         if (event.getPacketType() == PacketType.Play.Client.WINDOW_CONFIRMATION) {
             WrapperPlayClientWindowConfirmation wrapper = new WrapperPlayClientWindowConfirmation(event);
         }
+        if (event.getPacketType() == PacketType.Play.Client.CHANGE_GAME_MODE) {
+            WrapperPlayClientChangeGameMode wrapper = new WrapperPlayClientChangeGameMode(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Client.CUSTOM_CLICK_ACTION) {
+            WrapperPlayClientCustomClickAction wrapper = new WrapperPlayClientCustomClickAction(event);
+        }
     }
 
     @Override
@@ -214,6 +310,12 @@ public class PacketListener extends PacketListenerAbstract {
         }
         if (event.getPacketType() == PacketType.Play.Server.DESTROY_ENTITIES) {
             WrapperPlayServerDestroyEntities packet = new WrapperPlayServerDestroyEntities(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.SHOW_DIALOG) {
+            WrapperPlayServerShowDialog wrapper = new WrapperPlayServerShowDialog(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.CLEAR_DIALOG) {
+            WrapperPlayServerClearDialog wrapper = new WrapperPlayServerClearDialog(event);
         }
         if (event.getPacketType() == PacketType.Play.Server.SERVER_DIFFICULTY) {
             WrapperPlayServerDifficulty packet = new WrapperPlayServerDifficulty(event);
@@ -373,6 +475,9 @@ public class PacketListener extends PacketListenerAbstract {
         }
         if (event.getPacketType() == PacketType.Play.Server.WINDOW_ITEMS) {
             WrapperPlayServerWindowItems packet = new WrapperPlayServerWindowItems(event);
+        }
+        if (event.getPacketType() == PacketType.Play.Server.WAYPOINT) {
+            WrapperPlayServerWaypoint packet = new WrapperPlayServerWaypoint(event);
         }
     }
 }

@@ -12,14 +12,16 @@ repositories {
         name = 'spigotmc-repo'
         url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
     }
-    maven { url 'https://repo.codemc.io/repository/maven-snapshots/' }
+    maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
+    flatDir {
+        dirs 'lib'
+    }
 }
 
 dependencies {
-    compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.21.5-R0.1-SNAPSHOT'
     //Keeps PacketEvents constantly up to date (latest commit)
-    implementation group: "com.github.retrooper", name: "packetevents-spigot", version: "2.3.1-SNAPSHOT"
-    //implementation 'com.github.retrooper.packetevents:spigot:2.0.0-SNAPSHOT'
+    compileOnly(name: "packetevents_lib")
 }
 
 def targetJavaVersion = 8

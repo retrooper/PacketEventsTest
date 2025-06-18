@@ -1,3 +1,6 @@
 name: PacketEventsTest
 version: '${version}'
 main: me.defineoutside.packeteventstest.PacketEventsTest
+
+depend:
+  - packetevents
