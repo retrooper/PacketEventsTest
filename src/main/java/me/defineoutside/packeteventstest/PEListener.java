@@ -83,9 +83,7 @@ public class PEListener implements PacketListener {
             Object wrapper = clazz.getConstructor(PacketReceiveEvent.class).newInstance(event);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                  NoSuchMethodException e) {
-            if (!(e.getCause() instanceof InvalidHandshakeException)) { // Ignore invalid handshakes
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException(e);
         }
     }
 
