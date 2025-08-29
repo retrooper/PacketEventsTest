@@ -2,31 +2,22 @@ package me.defineoutside.packeteventstest;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListener;
-import com.github.retrooper.packetevents.event.PacketListenerAbstract;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
-import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
-import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.exception.InvalidHandshakeException;
 import com.github.retrooper.packetevents.protocol.world.chunk.*;
 import com.github.retrooper.packetevents.protocol.world.chunk.impl.v_1_18.Chunk_v1_18;
 import com.github.retrooper.packetevents.protocol.world.chunk.palette.DataPalette;
-import com.github.retrooper.packetevents.wrapper.handshaking.client.WrapperHandshakingClientHandshake;
-import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientEncryptionResponse;
-import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientLoginStart;
-import com.github.retrooper.packetevents.wrapper.login.client.WrapperLoginClientPluginResponse;
-import com.github.retrooper.packetevents.wrapper.login.server.*;
-import com.github.retrooper.packetevents.wrapper.play.client.*;
-import com.github.retrooper.packetevents.wrapper.play.server.*;
-import com.github.retrooper.packetevents.wrapper.status.client.WrapperStatusClientPing;
-import com.github.retrooper.packetevents.wrapper.status.server.WrapperStatusServerPong;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChunkData;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PEListener implements PacketListener {
 
@@ -90,20 +81,26 @@ public class PEListener implements PacketListener {
 
         try {
             Object wrapper = clazz.getConstructor(PacketReceiveEvent.class).newInstance(event);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            if (!(e.getCause() instanceof InvalidHandshakeException)) { // Ignore invalid handshakes
+                throw new RuntimeException(e);
+            }
         }
     }
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType() == null) return;
-       Class<?> clazz = event.getPacketType().getWrapperClass();
-       if (clazz == null) return;
-
+        Class<?> clazz = event.getPacketType().getWrapperClass();
+        if (clazz == null) return;
         try {
+            PacketEvents.getAPI().getLogger().warning("Sending the packet: " + clazz.getSimpleName());
+            //Bukkit.broadcastMessage("Sending packet... " + clazz.getSimpleName());
             Object wrapper = clazz.getConstructor(PacketSendEvent.class).newInstance(event);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            event.markForReEncode(true);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }
